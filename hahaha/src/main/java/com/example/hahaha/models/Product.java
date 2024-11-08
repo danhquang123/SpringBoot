@@ -2,6 +2,7 @@ package com.example.hahaha.models;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Entity
 @Table(name="products")
