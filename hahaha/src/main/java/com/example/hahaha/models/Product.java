@@ -1,8 +1,9 @@
 package com.example.hahaha.models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Entity
 @Table(name="products")
@@ -54,8 +55,8 @@ public class Product {
         this.category = category;
     }
 
-    public double getPrice() {
-        return price;
+    public @Min(0) float getPrice() {
+        return (float) price;
     }
 
     public void setPrice(double price) {

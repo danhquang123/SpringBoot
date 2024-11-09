@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.xml.crypto.Data;
+import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 
@@ -59,7 +60,7 @@ public class ProductsControllers {
         LocalDateTime createdAt = LocalDateTime.now() ;
         String storageFileName =image.getOriginalFilename();
         try {
-            String uploadDir = "hahaha/src/main/resources/public/images";
+            String uploadDir = "public/images";
             Path uploadPath = Paths.get(uploadDir);
 
             // Kiểm tra và tạo thư mục nếu chưa tồn tại
@@ -89,6 +90,87 @@ public class ProductsControllers {
 
         repo.save(sanpham);
 
+        return "redirect:/products";
+    }
+
+
+//    xoá sản phẩm
+    @GetMapping("/edit")
+    public String editsanpham(Model model,@RequestParam int id){
+
+        try {
+            Product sanpham=repo.findById(id).get();
+            model.addAttribute("sanpham",sanpham);
+
+            createProduct themsp = new createProduct();
+
+            themsp.setName(sanpham.getName());
+            themsp.setBrand(sanpham.getBrand());
+            themsp.setCategory(sanpham.getCategory());
+            themsp.setPrice(sanpham.getPrice());
+            themsp.setDescription(sanpham.getDescription());
+
+            model.addAttribute("editSp",themsp);
+
+        } catch (Exception ex) {
+            System.out.println("Exception: " + ex.getMessage());
+            return "redirect:/products";
+        }
+
+        return "products/edit";
+    }
+
+    @PostMapping("/edit")
+    public String editProducts(Model model,
+                               @RequestParam int id,
+                               @Valid @ModelAttribute createProduct editsp,
+                               BindingResult result){
+
+        try {
+            Product product = repo.findById(id).get();
+            model.addAttribute("product",product);
+            if(result.hasErrors()){
+                return "products/edit";
+            }
+
+            if(!editsp.getImageFile().isEmpty()){
+                // xoá ảnh cũ
+                String uploadDir="public/images/";
+                Path oldImage=Paths.get(uploadDir+product.getImageFileName());
+
+                try{
+                    Files.delete(oldImage);
+
+                } catch (Exception ex) {
+                    System.out.println("Exception: " + ex.getMessage());
+                }
+
+                // lưu ảnh mới
+
+                MultipartFile image = editsp.getImageFile();
+                LocalDateTime createdAt = LocalDateTime.now() ;
+                String storageFileName =image.getOriginalFilename();
+
+                try {
+
+                    try (InputStream inputStream = image.getInputStream()) {
+                        Files.copy(inputStream,Paths.get(uploadDir+storageFileName),
+                         StandardCopyOption.REPLACE_EXISTING);
+                    }
+                    product.setImageFileName(storageFileName);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                product.setName(editsp.getName());
+                product.setBrand(editsp.getBrand());
+                product.setCategory(editsp.getCategory());
+                product.setPrice(editsp.getPrice());
+                product.setDescription(editsp.getDescription());
+                repo.save(product);
+            }
+        } catch (Exception ex) {
+            System.out.println("Exception: " + ex.getMessage());
+        }
         return "redirect:/products";
     }
 }
