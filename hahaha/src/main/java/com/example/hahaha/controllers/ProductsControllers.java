@@ -7,6 +7,7 @@ import com.example.hahaha.services.ProductsRepository;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.*;
@@ -33,10 +34,21 @@ public class ProductsControllers {
 
     @GetMapping({"","/"})
     public String showProductList(Model model){
-        List<Product> sanpham= repo.findAll();
+        List<Product> sanpham= repo.findAll(Sort.by(Sort.Direction.DESC,"id"));
         model.addAttribute("products",sanpham);
         return "products/index";
     }
+
+    //trang chủ
+    @GetMapping("/trangchu")
+    public String Trangchu(Model model)
+    {
+        List<Product>sanpham=repo.findAll(Sort.by(Sort.Direction.DESC,"id"));
+        model.addAttribute("products",sanpham);
+        return "products/trangchu";
+
+    }
+
 
 //    thêm sản phẩm
     @GetMapping("/create")
@@ -173,4 +185,30 @@ public class ProductsControllers {
         }
         return "redirect:/products";
     }
+
+//    xoá sản phẩm
+
+    @GetMapping("/delete")
+    public  String deleteProduct(@RequestParam int id){
+
+        try {
+            Product product = repo.findById(id).get();
+
+//            xoá ảnh
+            Path images =Paths.get("public/images/"+product.getImageFileName());
+            try{
+                Files.delete(images);
+            } catch (RuntimeException ex) {
+                System.out.println("Exception: " + ex.getMessage());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+            repo.delete(product);
+        } catch (RuntimeException ex) {
+            System.out.println("Exception: " + ex.getMessage());
+        }
+        return "redirect:/products";
+    }
+
 }

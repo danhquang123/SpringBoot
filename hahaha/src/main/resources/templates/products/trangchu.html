@@ -9,18 +9,24 @@
 <body>
 <div class="container">
     <h1 class="text-center my-4">Trang sản phẩm</h1>
+    <div class="d-flex justify-content-between mb-3">
+        <a class="btn btn-primary" href="/products">Quay lại</a>
+        <a class="btn btn-primary" href="/products/trangchu">Trang chủ</a>
+    </div>
 
+    <!-- Grid layout for product cards -->
     <div class="row row-cols-1 row-cols-md-3 g-4">
         <!-- Loop through each product -->
         <div class="col" th:each="product : ${products}">
             <div class="card h-100">
                 <!-- Product Image -->
-                <img th:src="@{'images/'+${product.imageFileName}}" class="card-img-top" alt="..." style="height: 200px; object-fit: cover;">
+                <img th:src="@{'/images/'+${product.imageFileName}}" class="card-img-top" alt="lỗi ảnh" style="height: 400px; object-fit: cover;">
 
                 <!-- Product Details -->
                 <div class="card-body">
                     <h5 class="card-title" th:text="${product.name}">Product Name</h5>
                     <p class="card-text">
+                        <strong>Brand:</strong> <span th:text="${product.imageFileName}">ảnh</span><br>
                         <strong>Brand:</strong> <span th:text="${product.brand}">Brand</span><br>
                         <strong>Category:</strong> <span th:text="${product.category}">Category</span><br>
                         <strong>Price:</strong> <span th:text="${product.price} + '$'">Price</span><br>
@@ -28,7 +34,11 @@
                     </p>
                 </div>
 
-
+                <!-- Action Buttons -->
+                <div class="card-footer d-flex justify-content-between">
+                    <a class="btn btn-primary btn-sm" th:href="@{/products/edit(id=${product.id})}">Xem chi tiết</a>
+                    <a class="btn btn-danger btn-sm" th:href="@{/products/delete(id=${product.id})}" onclick="return confirm('bạn có chắc chắn không ?')">Mua</a>
+                </div>
             </div>
         </div>
     </div>
